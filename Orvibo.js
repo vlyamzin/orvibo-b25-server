@@ -11,12 +11,12 @@ let ORVIBO_KEY = Settings.ORVIBO_KEY;
 let LOG_PACKET = Settings.LOG_PACKET;
 let PLUG_INFO = Settings.plugInfo;
 
-const Orvibo = function(userSettings = {}) {
+const Orvibo = function (userSettings = {}) {
     // Allow user to pass in settings
-    if('ORVIBO_KEY' in userSettings) ORVIBO_KEY = userSettings.ORVIBO_KEY;
-    if('plugInfo' in userSettings) PLUG_INFO = userSettings.plugInfo;
-    if('PLUG_INFO' in userSettings) PLUG_INFO = userSettings.PLUG_INFO;
-    if('LOG_PACKET' in userSettings) LOG_PACKET = userSettings.LOG_PACKET;
+    if ('ORVIBO_KEY' in userSettings) ORVIBO_KEY = userSettings.ORVIBO_KEY;
+    if ('plugInfo' in userSettings) PLUG_INFO = userSettings.plugInfo;
+    if ('PLUG_INFO' in userSettings) PLUG_INFO = userSettings.PLUG_INFO;
+    if ('LOG_PACKET' in userSettings) LOG_PACKET = userSettings.LOG_PACKET;
 
     if (ORVIBO_KEY === '') {
         logger.log('Please pass Orvibo PK key details via the constructor or add to OrviboSettings.js file. See Readme');
@@ -61,6 +61,7 @@ let helloHandler = (plugPacket, socket) => {
     let pkData = {
         serial: plugPacket.getSerial(),
         encryptionKey: Utils.generateRandomTextValue(16),
+        // encryptionKey: 'S5MQQPUAs3w3aR7i',
         id: Utils.generateRandomHexValue(32),
         modelId: plugPacket.getModelId(),
         orviboKey: plugPacket.getOrviboKey()
@@ -68,7 +69,7 @@ let helloHandler = (plugPacket, socket) => {
     respondAndSetData(pkData, socket, PacketBuilder.helloPacket);
 };
 
-let handshakeHandler = function(plugPacket, socket, socketData) {
+let handshakeHandler = function (plugPacket, socket, socketData) {
     let uid = plugPacket.getUid();
     let pkData = Object.assign({}, socketData, {
         serial: plugPacket.getSerial(),
@@ -77,20 +78,21 @@ let handshakeHandler = function(plugPacket, socket, socketData) {
     });
     respondAndSetData(pkData, socket, PacketBuilder.handshakePacket);
     logger.log(`Connected ${pkData.uid} name = ${pkData.name}`);
-    this.emit('plugConnected', {uid:pkData.uid, name: pkData.name});
+    this.emit('plugConnected', { uid: pkData.uid, name: pkData.name });
 };
 
-let heartbeatHandler = function(plugPacket, socket, socketData) {
+let heartbeatHandler = function (plugPacket, socket, socketData) {
     let pkData = Object.assign({}, socketData, {
         serial: plugPacket.getSerial(),
         uid: plugPacket.getUid()
     });
+
     respondAndSetData(pkData, socket, PacketBuilder.heartbeatPacket);
-    logger.log(`Plug ${pkData.name} ${pkData.uid} sent heartbeat`);
-    this.emit('gotHeartbeat', {uid:pkData.uid, name: pkData.name});
+    // logger.log(`Plug ${pkData.name} ${pkData.uid} sent heartbeat`);
+    this.emit('gotHeartbeat', { uid: pkData.uid, name: pkData.name });
 };
 
-let stateUpdateHandler = function(plugPacket, socket, socketData) {
+let stateUpdateHandler = function (plugPacket, socket, socketData) {
     let pkData = Object.assign({}, socketData, {
         serial: plugPacket.getSerial(),
         uid: plugPacket.getUid(),
@@ -98,14 +100,14 @@ let stateUpdateHandler = function(plugPacket, socket, socketData) {
     });
     respondAndSetData(pkData, socket, PacketBuilder.comfirmStatePacket);
     logger.log(`Plug ${pkData.name} ${pkData.uid} updated state ${pkData.state}`);
-    this.emit('plugStateUpdated', {uid:pkData.uid, state: pkData.state, name: pkData.name});
+    this.emit('plugStateUpdated', { uid: pkData.uid, state: pkData.state, name: pkData.name });
 };
 
-let stateConfirmHandler = function() {
+let stateConfirmHandler = function () {
     // Do nothing at this stage
 };
 
-let unknownCmdHandler = function(plugPacket, socket, socketData) {
+let unknownCmdHandler = function (plugPacket, socket, socketData) {
     let pkData = Object.assign({}, socketData, {
         serial: plugPacket.getSerial(),
         uid: plugPacket.getUid(),
@@ -113,25 +115,25 @@ let unknownCmdHandler = function(plugPacket, socket, socketData) {
     respondAndSetData(pkData, socket, PacketBuilder.defaultPacket);
 };
 
-Orvibo.prototype.handlers = function() {
+Orvibo.prototype.handlers = function () {
     return {
         [HELLO]: helloHandler.bind(this),
         [HANDSHAKE]: handshakeHandler.bind(this),
         [HEARTBEAT]: heartbeatHandler.bind(this),
         [STATE_UPDATE]: stateUpdateHandler.bind(this),
-        [STATE_UPDATE_CONFIRM] : stateConfirmHandler,
+        [STATE_UPDATE_CONFIRM]: stateConfirmHandler,
         [UNKNOWN_CMD]: unknownCmdHandler.bind(this)
     };
 };
 
-Orvibo.prototype.startServer = function() {
+Orvibo.prototype.startServer = function () {
 
     let self = this;
     let handlers = this.handlers();
 
-    logger.log(`Starting server Orvibo socket server on port ${port}`);
+    logger.log(`Starting Orvibo socket server on port ${port}`);
 
-    this.server = net.createServer(function(socket) {
+    this.server = net.createServer(function (socket) {
 
         socket.id = Utils.generateRandomTextValue(16);
         socket.setKeepAlive(true, 10000);
@@ -153,7 +155,7 @@ Orvibo.prototype.startServer = function() {
                 } else {
                     plugPacket.processPacket(socketData.encryptionKey);
                 }
-            } catch(err) {
+            } catch (err) {
                 logger.log('Failed to parse packet: ' + err);
                 return;
             }
@@ -171,7 +173,7 @@ Orvibo.prototype.startServer = function() {
         socket.on('end', function () {
             let pkData = getData(socket.id);
             logger.log(`Plug ${pkData.uid} - ${pkData.name} disconnected`);
-            self.emit('plugDisconnected', {uid: pkData.uid, name: pkData.name});
+            self.emit('plugDisconnected', { uid: pkData.uid, name: pkData.name });
             delete packetData[socket.id];
             plugConnections.splice(plugConnections.indexOf(socket), 1);
         });
@@ -190,7 +192,7 @@ Orvibo.prototype.startServer = function() {
     this.server.listen(port, bindHost);
 };
 
-Orvibo.prototype.toggleSocket = function(uid) {
+Orvibo.prototype.toggleSocket = function (uid) {
 
     let socketId = null;
     for (const key of Object.keys(packetData)) {
@@ -206,10 +208,10 @@ Orvibo.prototype.toggleSocket = function(uid) {
     let socket = plugConnections.find(s => s.id === socketId);
     if (socket != null) {
         let socketData = getData(socketId);
-        let data = Object.assign({}, socketData,{
+        let data = Object.assign({}, socketData, {
             state: socketData.state === 1 ? 0 : 1,
             serial: Utils.generateRandomNumber(8),
-            clientSessionId:  socketData.clientSessionId ? socketData.clientSessionId : Utils.generateRandomHexValue(32),
+            clientSessionId: socketData.clientSessionId ? socketData.clientSessionId : Utils.generateRandomHexValue(32),
             deviceId: socketData.deviceId ? socketData.deviceId : Utils.generateRandomHexValue(32),
         });
 
@@ -223,7 +225,51 @@ Orvibo.prototype.toggleSocket = function(uid) {
     }
 };
 
-Orvibo.prototype.getConnectedSockets = function() {
+Orvibo.prototype.rfEmit = function (uid, state) {
+    logger.log('Sending rf request');
+    const formatState = (str) => {
+        switch (str) {
+            case 'open':
+                return '380000';
+            case 'close':
+                return '380001';
+            case 'stop':
+            default:
+                return '380002';
+        }
+    }
+
+    let socketId = null;
+    for (const key of Object.keys(packetData)) {
+        if (packetData[key].uid === uid) {
+            socketId = key;
+            break
+        }
+    }
+    if (socketId === null) {
+        logger.log('Could not find socket ' + uid);
+        return;
+    }
+    let socket = plugConnections.find(s => s.id === socketId);
+    if (socket != null) {
+        let socketData = getData(socketId);
+        let data = Object.assign({}, socketData, {
+            state: formatState(state),
+            serial: Utils.generateRandomNumber(8),
+            clientSessionId: socketData.clientSessionId ? socketData.clientSessionId : Utils.generateRandomHexValue(32),
+            deviceId: socketData.deviceId ? socketData.deviceId : Utils.generateRandomHexValue(32),
+        });
+        setData(socket.id, data);
+
+        let packet = PacketBuilder.rfPacket(data);
+        socket.write(packet)
+
+    } else {
+        logger.log('Can not find socket ');
+    }
+}
+
+Orvibo.prototype.getConnectedSockets = function () {
     let sockets = [];
     for (const key of Object.keys(packetData)) {
         let socketData = getData(key);
@@ -239,8 +285,8 @@ Orvibo.prototype.getConnectedSockets = function() {
 
 Orvibo.prototype.getConnectedSocket = Orvibo.prototype.getConnectedSockets;
 
-Orvibo.prototype.setLogger = function(newLogger) {
-  logger = newLogger;
+Orvibo.prototype.setLogger = function (newLogger) {
+    logger = newLogger;
 };
 
 module.exports = Orvibo;
