@@ -283,7 +283,7 @@ Orvibo.prototype.getConnectedSockets = function () {
     return sockets;
 };
 
-Orvibo.prototype.getConnectedSocket = Orvibo.prototype.getConnectedSockets;
+Orvibo.prototype.getConnectedDevices = Orvibo.prototype.getConnectedSockets;
 
 Orvibo.prototype.setLogger = function (newLogger) {
     logger = newLogger;

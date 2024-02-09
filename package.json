@@ -1,6 +1,6 @@
 {
   "name": "orvibo-b25-server",
-  "version": "1.1.0",
+  "version": "2.0.0",
   "description": "A server to control the Orvibo B25 range of smart sockets",
   "main": "index.js",
   "scripts": {
@@ -9,21 +9,24 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/sandysound/orvibo-b25-server.git"
+    "url": "git+https://github.com/vlyamzin/orvibo-b25-server.git"
   },
   "keywords": [
     "Orvibo",
     "B25",
     "Smart",
-    "Socket"
+    "Socket",
+    "Allone Pro"
   ],
-  "author": "Sandy Milne <sandymilne@protonmail.ch>",
+  "author": "Sandy Milne <sandymilne@protonmail.ch>, Vlad Lyamzin <devy201@gmail.com>",
   "license": "Apache-2.0",
   "bugs": {
-    "url": "https://github.com/sandysound/orvibo-b25-server/issues"
+    "url": "https://github.com/vlyamzin/orvibo-b25-server/issues"
   },
-  "homepage": "https://github.com/sandysound/orvibo-b25-server#readme",
+  "homepage": "https://github.com/vlyamzin/orvibo-b25-server#readme",
   "dependencies": {
-    "buffer-crc32": "^0.2.13"
+    "body-parser": "^1.20.2",
+    "buffer-crc32": "^0.2.13",
+    "express": "^4.18.2"
   }
 }
