@@ -1,6 +1,6 @@
 name: Orvibo Allone Pro server
 description: A local instance of the Orvibo server to operate with Allone Pro hub
-version: 1.0.3
+version: 1.0.4
 slug: orvibo_allone_pro_server
 init: false
 arch:

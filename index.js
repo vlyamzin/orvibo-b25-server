@@ -47,13 +47,13 @@ server.get('/device/:uid', (req, res) => {
   }
 });
 
-server.post('/socket/toggle', (req, res, next) => {
+server.post('/socket/toggle', (req, res) => {
   try {
     let uid = req.body?.uid;
 
     if (!uid) {
       res.status(404).json({ error: "UID is not provided" });
-      next();
+      return;
     }
 
     orvibo.toggleSocket(uid);
@@ -66,13 +66,13 @@ server.post('/socket/toggle', (req, res, next) => {
   }
 });
 
-server.post('/blinds/open', (req, res, next) => {
+server.post('/blinds/open', (req, res) => {
   try {
     let uid = req.body?.uid;
 
     if (!uid) {
       res.status(404).json({ error: "UID is not provided" });
-      next();
+      return;
     }
 
     orvibo.rfEmit(uid, 'open');
@@ -85,13 +85,13 @@ server.post('/blinds/open', (req, res, next) => {
   }
 })
 
-server.post('/blinds/close', (req, res, next) => {
+server.post('/blinds/close', (req, res) => {
   try {
     let uid = req.body?.uid;
 
     if (!uid) {
       res.status(404).json({ error: "UID is not provided" });
-      next();
+      return;
     }
 
     orvibo.rfEmit(uid, 'close');
@@ -103,13 +103,13 @@ server.post('/blinds/close', (req, res, next) => {
   }
 })
 
-server.post('/blinds/stop', (req, res, next) => {
+server.post('/blinds/stop', (req, res) => {
   try {
     let uid = req.body?.uid;
 
     if (!uid) {
       res.status(404).json({ error: "UID is not provided" });
-      next();
+      return;
     }
 
     orvibo.rfEmit(uid, 'stop');
