@@ -1,0 +1,24 @@
+name: Orvibo Allone Pro server
+description: A local instance of the Orvibo server to operate with Allone Pro hub
+version: 1.0.3
+slug: orvibo_allone_pro_server
+init: false
+arch:
+  - aarch64
+  - amd64
+  - armhf
+  - armv7
+  - i386
+startup: application
+boot: auto
+ports:
+  3000/tcp: 3000
+  10001/tcp: 10001
+options:
+  orvibo_key: null
+  device_uid: null
+  device_name: Allone Pro
+schema:
+  orvibo_key: str
+  device_uid: str
+  device_name: str
